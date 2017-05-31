@@ -1,6 +1,7 @@
 package com.example.zhangy2322.mymapsapp;
 
 import android.content.pm.PackageManager;
+import android.location.Location;
 import android.location.LocationManager;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
@@ -19,6 +20,15 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+/* Tasks:
+1. Create MapsActivity class.
+2. Create key for access to maps APIs
+3. Change the location of the initial marker to your place of birth, move the camera towards it, and display a message "Born here" if tap the marker. (see Android ActivityCompat, GoogleMap API's).
+4. Drop a marker dot at your current location.
+5. Add a "Map View" button and switch the map display between overhead satellite view and normal street map view. The button should toggle between the two modes.
+6. Create a LocationManager based tracker. App should track user based on GPS and Wifi location services.
+7. Create a point-of-interest (POI) search feature. App should drop markers at the location of the POI's.
+ */
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
 
@@ -30,8 +40,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private static final float MIN_DISTANCE_CHANGE_FOR_UPDATES = 5;
 
     private LocationManager locationManager;
-    private LocationListener locationListenerNetwork;
-    private LocationListener locationListenerGPS;
 
 
     @Override
@@ -84,12 +92,34 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
     public void switchView(View v) {
-        if ()
+        if (mMap.getMapType() == 1) {
+            mMap.setMapType(GoogleMap.MAP_TYPE_SATELLITE);
+        } else {
+            mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+        }
+    }
+
+    public void dropMarker(LatLng loc) {
+        mMap.addMarker(new MarkerOptions().position(loc));
+        mMap.moveCamera(CameraUpdateFactory.newLatLng(loc));
     }
 
 
     public void getLocation() {
         try {
+            // check permissions
+            if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION)
+                    == PackageManager.PERMISSION_GRANTED) {
+                mMap.setMyLocationEnabled(true);
+            }
+
+            if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) !=
+                    PackageManager.PERMISSION_GRANTED) {
+                Log.d("MyMapsApp", "Failed Permission check 2");
+                ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.ACCESS_COARSE_LOCATION}, 2);
+            }
+
+
             locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
 
             //get GPS status
@@ -117,7 +147,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                             locationListenerNetwork);
 
 
-
                     Log.d("MyMaps", "getLocation: NetworkLoc update request successful");
                     Toast.makeText(this, "Using Network", Toast.LENGTH_SHORT);
                 }
@@ -140,4 +169,98 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             e.printStackTrace();
         }
     }
+
+
+    android.location.LocationListener locationListenerGPS = new android.location.LocationListener() {
+        @Override
+        public void onLocationChanged(Location location) {
+            // output in Log.d and Toast that GPS is enabled and working
+            Log.d("MyMaps", "GPS enabled");
+            Toast.makeText(MapsActivity.this, "GPS enabled", Toast.LENGTH_SHORT).show();
+
+
+            // drop a marker on the map - create a method called drop marker
+
+            // remove the NETWORK location updates. Hint: see LocationManager for update removal method
+            if (ActivityCompat.checkSelfPermission(MapsActivity.this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                return;
+            }
+            locationManager.removeUpdates(locationListenerNetwork);
+        }
+
+        @Override
+        public void onStatusChanged(String provider, int status, Bundle extras) {
+            // output in Log.d and Toast that GPS is enabled and working
+            Log.d("MyMaps", "GPS enabled and working");
+            Toast.makeText(MapsActivity.this, "GPS enabled and working", Toast.LENGTH_SHORT);
+
+
+            // setup a switch statement to check the status input parameter
+            // case LocationProvider.AVAILABLE (2)--> output message to Log.d and Toast
+            // case LocationProvider.OUT_OF_SERVICE (0) --> output message like "GPS is unavailable", request updates from NETWORK_PROVIDER using locationManager.requestLocationUpdates
+            // case LocationProvider.TEMPORARILY_UNAVAILABLE (1) --> output message like "GPS is unavailable", request updates from NETWORK_PROVIDER using locationManager.requestLocationUpdates
+
+            switch(status) {
+
+                case 2:
+                    Log.d("MyMaps", "GPS provider available");
+                    Toast.makeText(MapsActivity.this, "GPS provider available", Toast.LENGTH_SHORT);
+                    break;
+
+                case 1:
+                    Log.d("MyMaps", "GPS provider temporarily unavailable");
+                    Toast.makeText(MapsActivity.this, "GPS provider temporarily unavailable", Toast.LENGTH_SHORT);
+
+                    break;
+
+                case 0:
+            }
+
+
+        }
+
+        @Override
+        public void onProviderEnabled(String provider) {}
+        @Override
+        public void onProviderDisabled(String provider) {}
+    };
+
+    android.location.LocationListener locationListenerNetwork = new android.location.LocationListener() {
+
+        @Override
+        public void onLocationChanged(Location location) {
+            // output in Log.d and Toast that network is enabled and working
+            Log.d("MyMaps", "Network enabled");
+            Toast.makeText(MapsActivity.this, "Network enabled", Toast.LENGTH_SHORT).show();
+
+
+            // drop a marker on the map - create a method called drop marker
+
+            // relaunch the network provider request, request location updates from the network provider (NETWORK_PROVIDER)
+
+        }
+
+        @Override
+        public void onStatusChanged(String provider, int status, Bundle extras) {
+            // output message in Log.d and Toast
+            Log.d("MyMaps", "Network enabled");
+            Toast.makeText(MapsActivity.this, "Network enabled", Toast.LENGTH_SHORT).show();
+
+        }
+
+        @Override
+        public void onProviderEnabled(String provider) {
+
+        }
+
+        @Override
+        public void onProviderDisabled(String provider) {
+
+        }
+    };
+
+    public void track(View v) {
+
+    }
+
 }

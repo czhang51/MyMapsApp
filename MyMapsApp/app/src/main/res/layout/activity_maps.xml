@@ -21,15 +21,49 @@
     android:id="@+id/map"
     android:name="com.google.android.gms.maps.SupportMapFragment"
     android:layout_width="388dp"
-    android:layout_height="443dp"
+    android:layout_height="420dp"
     tools:context="com.example.zhangy2322.mymapsapp.MapsActivity" />
 
-    <Button
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Map View"
+            android:id="@+id/button_chooseView"
+            android:layout_gravity="center_horizontal"
+            android:onClick="switchView" />
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Track"
+            android:id="@+id/button_track"
+            android:onClick="track" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Satellite View"
-        android:id="@+id/button"
         android:layout_gravity="center_horizontal"
-        android:onClick="switchView" />
+        android:weightSum="1">
+
+        <EditText
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/editText_search"
+            android:hint="Search for a location"
+            android:layout_weight="1" />
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Search"
+            android:id="@+id/button_search" />
+    </LinearLayout>
 
 </LinearLayout>
