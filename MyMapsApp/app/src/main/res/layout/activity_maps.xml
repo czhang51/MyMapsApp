@@ -27,19 +27,20 @@
     <LinearLayout
         android:orientation="horizontal"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:weightSum="1">
 
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Map View"
+            android:text="View"
             android:id="@+id/button_chooseView"
             android:onClick="switchView" />
 
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Track"
+            android:text="Trk"
             android:id="@+id/button_track"
             android:onClick="track" />
 
@@ -47,14 +48,21 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/editText_search"
-            android:hint="Search for a location"
-            android:layout_weight="1" />
+            android:hint="Search" />
 
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Search"
-            android:id="@+id/button_search" />
+            android:id="@+id/button_search"
+            android:onClick="search" />
+
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Clr"
+            android:id="@+id/button_clear"
+            android:onClick="clear" />
     </LinearLayout>
 
 </LinearLayout>

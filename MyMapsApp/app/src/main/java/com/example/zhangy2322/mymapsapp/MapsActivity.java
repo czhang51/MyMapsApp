@@ -10,9 +10,11 @@ import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import com.google.android.gms.location.LocationListener;
+import com.google.android.gms.location.places.ui.PlacePicker;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -45,6 +47,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private static final int MY_LOC_ZOOM_FACTOR = 20;
     private LatLng userLocation;
     private int isTracking = 0;
+    private EditText search = (EditText)(findViewById(R.id.editText_search));
+
 
     private LocationManager locationManager;
 
@@ -384,11 +388,19 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         }
 
+    }
 
 
+    public void clear(View v) {
+        mMap.clear();
+    }
 
 
+    public void search(View v, String query) {
 
+        query = search.getText().toString();
+
+        PlacePicker.IntentBuilder builder = new PlacePicker.IntentBuilder();
     }
 
 }
