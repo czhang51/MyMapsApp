@@ -1,5 +1,6 @@
 package com.example.zhangy2322.mymapsapp;
 
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.location.Location;
@@ -13,7 +14,10 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
+import com.google.android.gms.common.GooglePlayServicesRepairableException;
 import com.google.android.gms.location.LocationListener;
+import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.ui.PlacePicker;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -47,7 +51,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private static final int MY_LOC_ZOOM_FACTOR = 20;
     private LatLng userLocation;
     private int isTracking = 0;
-    private EditText search = (EditText)(findViewById(R.id.editText_search));
+    private EditText search;
 
 
     private LocationManager locationManager;
@@ -396,11 +400,21 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
 
-    public void search(View v, String query) {
+    public void search(View v) {
+        String query;
+
+        search = (EditText)(findViewById(R.id.editText_search));
 
         query = search.getText().toString();
 
-        PlacePicker.IntentBuilder builder = new PlacePicker.IntentBuilder();
+        if (query.equals("")) {
+            Log.d("MyMaps", "No search term");
+            Toast.makeText(MapsActivity.this, "No search term", Toast.LENGTH_SHORT);
+        }
+
+
+
+
     }
 
 }
