@@ -3,6 +3,7 @@ package com.example.zhangy2322.mymapsapp;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationManager;
 import android.support.v4.app.ActivityCompat;
@@ -16,6 +17,7 @@ import android.widget.Toast;
 
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
 import com.google.android.gms.common.GooglePlayServicesRepairableException;
+import com.google.android.gms.identity.intents.Address;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.ui.PlacePicker;
@@ -29,6 +31,9 @@ import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+
+import java.io.IOException;
+import java.util.List;
 
 /* Tasks:
 1. Create MapsActivity class.
@@ -146,12 +151,16 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 CameraUpdate update = CameraUpdateFactory.newLatLngZoom(userLocation, MY_LOC_ZOOM_FACTOR);
 
                 // Drop the marker (circles)
+
+                // If using network
                 if (provider.equals(LocationManager.NETWORK_PROVIDER)) {
                     Log.d("MyMaps", "dropMarker: network marker");
                     Toast.makeText(MapsActivity.this, "dropMarker: network marker", Toast.LENGTH_SHORT);
                     mMap.addCircle(new CircleOptions().center(userLocation).radius(1).strokeColor(Color.RED).strokeWidth(2).fillColor(Color.RED));
 
                 }
+
+                // If using GPS
                 else {
                     Log.d("MyMaps", "dropMarker: GPS marker");
                     Toast.makeText(MapsActivity.this, "dropMarker: GPS marker", Toast.LENGTH_SHORT);
@@ -369,12 +378,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         isTracking++;
 
 
+        // Turn tracking on
         if (isTracking % 2 == 1) {
             Log.d("MyMaps", "Tracking on");
             Toast.makeText(MapsActivity.this, "Tracking on", Toast.LENGTH_SHORT).show();
             getLocation();
         }
 
+        // Turn tracking off
         else {
             Log.d("MyMaps", "Tracking off");
             Toast.makeText(MapsActivity.this, "Tracking off", Toast.LENGTH_SHORT).show();
@@ -394,22 +405,102 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     }
 
+    public String getQuery() {
+        String query;
+
+        try {
+            search = (EditText)(findViewById(R.id.editText_search));
+
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+            Log.d("MyMaps", "search: could not find editText_search");
+            Toast.makeText(MapsActivity.this, "search: could not find editText_search", Toast.LENGTH_SHORT);
+        }
+
+
+        query = search.getText().toString();
+
+        if (query.equals("")) {
+            Log.d("MyMaps", "search: No search term");
+            Toast.makeText(MapsActivity.this, "search: No search term", Toast.LENGTH_SHORT);
+        }
+
+        return query;
+    }
 
     public void clear(View v) {
         mMap.clear();
     }
 
+    public void search5(View v) {
+
+        // Find current location coordinates
+
+        /*
+        Calculations:
+        Latitude: 1 deg = 110.574 km
+        approximately 13.7414996421 degrees?
+
+Longitude: 1 deg = 111.320*cos(latitude) km
+
+5 miles = 8.04672 km
+
+         */
+
+        // Turn address into place
+
+        Geocoder geocoder = new Geocoder(this);
+        List<android.location.Address> addresses = null;
+        try {
+            // Find a maximum of 3 locations with the name query within certain bounds
+            addresses = geocoder.getFromLocationName(getQuery(), 3, myLocation.getLatitude()-20, myLocation.getLongitude() +20, myLocation.getLatitude() + 20, myLocation.getLongitude()- 20);
+        } catch (Exception e) {
+            e.printStackTrace();
+            Log.d("MyMaps", "search: geocoder.getFromLocationName failed");
+            Toast.makeText(MapsActivity.this, "search: geocoder.getFromLocationName failed", Toast.LENGTH_SHORT);
+        }
+
+        if (addresses != null) {
+            for (android.location.Address loc : addresses) {
+                MarkerOptions opts = new MarkerOptions()
+                        .position(new LatLng(loc.getLatitude(), loc.getLongitude()))
+                        .title(loc.getAddressLine(0));
+                mMap.addMarker(opts);
+            }
+        }
+        else {
+            Log.d("MyMaps", "search: addresses == null");
+            Toast.makeText(MapsActivity.this, "search: addresses == null", Toast.LENGTH_SHORT);
+        }
+
+    }
 
     public void search(View v) {
-        String query;
+        // Turn address into place
 
-        search = (EditText)(findViewById(R.id.editText_search));
+        Geocoder geocoder = new Geocoder(this);
+        List<android.location.Address> addresses = null;
+        try {
+            // Find a maximum of 3 locations with the name query
+            addresses = geocoder.getFromLocationName(getQuery(), 3);
+        } catch (IOException e) {
+            e.printStackTrace();
+            Log.d("MyMaps", "search: geocoder.getFromLocationName failed");
+            Toast.makeText(MapsActivity.this, "search: geocoder.getFromLocationName failed", Toast.LENGTH_SHORT);
+        }
 
-        query = search.getText().toString();
-
-        if (query.equals("")) {
-            Log.d("MyMaps", "No search term");
-            Toast.makeText(MapsActivity.this, "No search term", Toast.LENGTH_SHORT);
+        if (addresses != null) {
+            for (android.location.Address loc : addresses) {
+                MarkerOptions opts = new MarkerOptions()
+                        .position(new LatLng(loc.getLatitude(), loc.getLongitude()))
+                        .title(loc.getAddressLine(0));
+                mMap.addMarker(opts);
+            }
+        }
+        else {
+            Log.d("MyMaps", "search: addresses == null");
+            Toast.makeText(MapsActivity.this, "search: addresses == null", Toast.LENGTH_SHORT);
         }
 
 

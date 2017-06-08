@@ -11,6 +11,28 @@
         android:layout_height="wrap_content">
 
 
+        <EditText
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/editText_search"
+            android:hint="Search"
+            android:layout_weight="13.15" />
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Search"
+            android:id="@+id/button_search"
+            android:onClick="search"
+            android:layout_weight="1" />
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Search-5"
+            android:id="@+id/button_search5"
+            android:layout_weight="1"
+            android:onClick="search5" />
     </LinearLayout>
 
 
@@ -21,7 +43,7 @@
     android:id="@+id/map"
     android:name="com.google.android.gms.maps.SupportMapFragment"
     android:layout_width="388dp"
-    android:layout_height="448dp"
+    android:layout_height="425dp"
     tools:context="com.example.zhangy2322.mymapsapp.MapsActivity" />
 
     <LinearLayout
@@ -44,21 +66,8 @@
             android:id="@+id/button_track"
             android:onClick="track" />
 
-        <EditText
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/editText_search"
-            android:hint="Search" />
-
         <Button
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Search"
-            android:id="@+id/button_search"
-            android:onClick="search" />
-
-        <Button
-            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Clr"
             android:id="@+id/button_clear"
