@@ -72,6 +72,16 @@
             android:text="Clr"
             android:id="@+id/button_clear"
             android:onClick="clear" />
+
+        <ToggleButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="New ToggleButton"
+            android:id="@+id/toggleButton_track"
+            android:checked="false"
+            android:clickable="false"
+            android:textOn="Trk On"
+            android:textOff="Trk Off" />
     </LinearLayout>
 
 </LinearLayout>

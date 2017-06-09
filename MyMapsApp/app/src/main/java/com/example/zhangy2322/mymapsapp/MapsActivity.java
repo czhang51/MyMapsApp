@@ -12,8 +12,10 @@ import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.View;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.Toast;
+import android.widget.ToggleButton;
 
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
 import com.google.android.gms.common.GooglePlayServicesRepairableException;
@@ -31,6 +33,8 @@ import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import android.widget.CompoundButton.OnCheckedChangeListener;
+
 
 import java.io.IOException;
 import java.util.List;
@@ -57,6 +61,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private LatLng userLocation;
     private int isTracking = 0;
     private EditText search;
+
 
 
     private LocationManager locationManager;
@@ -88,7 +93,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION)
                 == PackageManager.PERMISSION_GRANTED) {
-        //    googleMap.setMyLocationEnabled(true);
+            //    googleMap.setMyLocationEnabled(true);
         }
 
         if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) !=
@@ -104,10 +109,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mMap.moveCamera(CameraUpdateFactory.newLatLng(birthplace));
 
 
-
         // Add a marker at current location
 
     }
+
+
 
     public void switchView(View v) {
         if (mMap.getMapType() == 1) {
@@ -116,7 +122,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
         }
     }
-
 
 
     public void dropMarker(String provider) {
@@ -169,9 +174,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 }
                 mMap.animateCamera(update);
             }
-        }
-
-        else {
+        } else {
             Log.d("MyMaps", "dropMarker: locationManager is null");
             Toast.makeText(MapsActivity.this, "dropMarker: locationManager is null", Toast.LENGTH_SHORT);
         }
@@ -186,7 +189,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             // check permissions
             if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION)
                     == PackageManager.PERMISSION_GRANTED) {
-            //    mMap.setMyLocationEnabled(true);
+                //    mMap.setMyLocationEnabled(true);
             }
 
             if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) !=
@@ -221,7 +224,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                             MIN_DISTANCE_CHANGE_FOR_UPDATES,
                             locationListenerNetwork);
 
-                    dropMarker("NETWORK_PROVIDER");
 
 
                     Log.d("MyMaps", "getLocation: NetworkLoc update request successful");
@@ -235,7 +237,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                             MIN_DISTANCE_CHANGE_FOR_UPDATES,
                             locationListenerGPS);
 
-                    dropMarker("GPS_PROVIDER");
 
 
                     Log.d("MyMaps", "getLocation: GPS update request successful");
@@ -260,7 +261,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
 
             // drop a marker on the map - create a method called drop marker
-            dropMarker(LocationManager.GPS_PROVIDER);
+            if (isTracking % 2 == 1) {
+                dropMarker(LocationManager.GPS_PROVIDER);
+            }
 
 
             // remove the NETWORK location updates. Hint: see LocationManager for update removal method
@@ -282,7 +285,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             // case LocationProvider.OUT_OF_SERVICE (0) --> output message like "GPS is unavailable", request updates from NETWORK_PROVIDER using locationManager.requestLocationUpdates
             // case LocationProvider.TEMPORARILY_UNAVAILABLE (1) --> output message like "GPS is unavailable", request updates from NETWORK_PROVIDER using locationManager.requestLocationUpdates
 
-            switch(status) {
+            switch (status) {
 
                 case 2:
                     Log.d("MyMaps", "GPS provider available");
@@ -324,9 +327,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
 
         @Override
-        public void onProviderEnabled(String provider) {}
+        public void onProviderEnabled(String provider) {
+        }
+
         @Override
-        public void onProviderDisabled(String provider) {}
+        public void onProviderDisabled(String provider) {
+        }
     };
 
     android.location.LocationListener locationListenerNetwork = new android.location.LocationListener() {
@@ -339,7 +345,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
 
             // drop a marker on the map - create a method called drop marker
-            dropMarker(LocationManager.NETWORK_PROVIDER);
+            if (isTracking % 2 == 1) {
+                dropMarker(LocationManager.NETWORK_PROVIDER);
+
+            }
 
             // relaunch the network provider request, request location updates from the network provider (NETWORK_PROVIDER)
             if (ActivityCompat.checkSelfPermission(MapsActivity.this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(MapsActivity.this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
@@ -409,10 +418,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         String query;
 
         try {
-            search = (EditText)(findViewById(R.id.editText_search));
+            search = (EditText) (findViewById(R.id.editText_search));
 
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
             Log.d("MyMaps", "search: could not find editText_search");
             Toast.makeText(MapsActivity.this, "search: could not find editText_search", Toast.LENGTH_SHORT);
@@ -453,8 +461,34 @@ Longitude: 1 deg = 111.320*cos(latitude) km
         Geocoder geocoder = new Geocoder(this);
         List<android.location.Address> addresses = null;
         try {
+
+            if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                return;
+            }
+
+            if (isTracking % 2 == 1) {
+                Log.d("MyMaps", "search5: cannot search5 while tracking");
+                Toast.makeText(MapsActivity.this, "search5: cannot search5 while tracking", Toast.LENGTH_SHORT);
+            }
+            else {
+                getLocation();
+
+            }
+
+
+
+            LatLng current = new LatLng(myLocation.getLatitude(), myLocation.getLongitude());
+            mMap.addMarker(new MarkerOptions().position(current).title("Current loc"));
+            mMap.moveCamera(CameraUpdateFactory.newLatLng(current));
+
+            Log.d("MyMaps", "search5: lat, long (" + myLocation.getLatitude() + ", " + myLocation.getLongitude() + ")");
+            Toast.makeText(MapsActivity.this, "search5: lat, long (" + myLocation.getLatitude() + ", " + myLocation.getLongitude() + ")", Toast.LENGTH_SHORT);
+
+            double lat1 = myLocation.getLatitude()-0.025707;
+            double long1 = myLocation.getLongitude() -0.002677;
+
             // Find a maximum of 3 locations with the name query within certain bounds
-            addresses = geocoder.getFromLocationName(getQuery(), 3, myLocation.getLatitude()-20, myLocation.getLongitude() +20, myLocation.getLatitude() + 20, myLocation.getLongitude()- 20);
+            addresses = geocoder.getFromLocationName(getQuery(), 3, myLocation.getLatitude()-0.025707, myLocation.getLongitude() -0.002677, myLocation.getLatitude() + 0.025707, myLocation.getLongitude() + 0.002677);
         } catch (Exception e) {
             e.printStackTrace();
             Log.d("MyMaps", "search: geocoder.getFromLocationName failed");
