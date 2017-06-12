@@ -244,6 +244,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 }
             }
 
+            myLocation = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+
 
         } catch (Exception e) {
             Log.d("MyMaps", "getLocation: Caught exception");
@@ -444,18 +446,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     public void search5(View v) {
 
         // Find current location coordinates
-
-        /*
-        Calculations:
-        Latitude: 1 deg = 110.574 km
-        approximately 13.7414996421 degrees?
-
-Longitude: 1 deg = 111.320*cos(latitude) km
-
-5 miles = 8.04672 km
-
-         */
-
         // Turn address into place
 
         Geocoder geocoder = new Geocoder(this);
@@ -469,26 +459,44 @@ Longitude: 1 deg = 111.320*cos(latitude) km
             if (isTracking % 2 == 1) {
                 Log.d("MyMaps", "search5: cannot search5 while tracking");
                 Toast.makeText(MapsActivity.this, "search5: cannot search5 while tracking", Toast.LENGTH_SHORT);
-            }
-            else {
+            } else {
                 getLocation();
 
             }
 
+            if (myLocation != null) {
+                LatLng current = new LatLng(myLocation.getLatitude(), myLocation.getLongitude());
+                mMap.addMarker(new MarkerOptions().position(current).title("Current loc"));
+                mMap.moveCamera(CameraUpdateFactory.newLatLng(current));
+
+                Log.d("MyMaps", "search5: lat, long (" + myLocation.getLatitude() + ", " + myLocation.getLongitude() + ")");
+                Toast.makeText(MapsActivity.this, "search5: lat, long (" + myLocation.getLatitude() + ", " + myLocation.getLongitude() + ")", Toast.LENGTH_SHORT);
+
+                double lat1 = myLocation.getLatitude() - 0.025707;
+                double long1 = myLocation.getLongitude() - 0.002677;
+                double lat2 = myLocation.getLatitude() + 0.025707;
+                double long2 = myLocation.getLongitude() + 0.002677;
+            }
+            else {
+                Log.d("MyMaps", "search: myLocation == null");
+                Toast.makeText(MapsActivity.this, "search: myLocation == null", Toast.LENGTH_SHORT);
+            }
 
 
-            LatLng current = new LatLng(myLocation.getLatitude(), myLocation.getLongitude());
-            mMap.addMarker(new MarkerOptions().position(current).title("Current loc"));
-            mMap.moveCamera(CameraUpdateFactory.newLatLng(current));
 
-            Log.d("MyMaps", "search5: lat, long (" + myLocation.getLatitude() + ", " + myLocation.getLongitude() + ")");
-            Toast.makeText(MapsActivity.this, "search5: lat, long (" + myLocation.getLatitude() + ", " + myLocation.getLongitude() + ")", Toast.LENGTH_SHORT);
 
-            double lat1 = myLocation.getLatitude()-0.025707;
-            double long1 = myLocation.getLongitude() -0.002677;
+        }
+        catch (Exception d) {
+            d.printStackTrace();
+            Log.d("MyMaps", "search: LatLng failed");
+            Toast.makeText(MapsActivity.this, "search: LatLng failed", Toast.LENGTH_SHORT);
 
+            }
+
+        try {
             // Find a maximum of 3 locations with the name query within certain bounds
             addresses = geocoder.getFromLocationName(getQuery(), 3, myLocation.getLatitude()-0.025707, myLocation.getLongitude() -0.002677, myLocation.getLatitude() + 0.025707, myLocation.getLongitude() + 0.002677);
+
         } catch (Exception e) {
             e.printStackTrace();
             Log.d("MyMaps", "search: geocoder.getFromLocationName failed");
